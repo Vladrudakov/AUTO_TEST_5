@@ -57,6 +57,15 @@ exports.config = {
     platformName: 'Android',
     'appium:deviceName': 'Android Emulator',
     'appium:automationName': 'UiAutomator2',
+    ...(process.env.ANDROID_AVD
+      ? {
+          'appium:avd': process.env.ANDROID_AVD.trim(),
+          'appium:avdLaunchTimeout': 120000,
+          'appium:avdReadyTimeout': 120000,
+        }
+      : {}),
+    'appium:deviceReadyTimeout': 120000,
+    'appium:adbExecTimeout': 60000,
     'appium:app': apiDemosApkPath,
     'appium:appPackage': 'io.appium.android.apis',
     'appium:appActivity': 'io.appium.android.apis.ApiDemos',
