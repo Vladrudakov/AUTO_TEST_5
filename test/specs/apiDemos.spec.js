@@ -10,32 +10,48 @@ describe('API Demos — mobile automation', () => {
     await autoComplete.waitForDisplayed({ timeout: 10000 });
     await autoComplete.click();
 
-    const screenTop = await $('//android.widget.TextView[@text="Screen Top"]');
+    const screenTop = await $('android=new UiSelector().textContains("Screen Top")');
     await screenTop.waitForDisplayed({ timeout: 10000 });
     await screenTop.click();
 
-    const countryInput = await $('android=new UiSelector().className("android.widget.EditText")');
-    await countryInput.waitForDisplayed({ timeout: 10000 });
+    const countryInputById = await $('id=io.appium.android.apis:id/edit');
+    const countryInputByUiSelector = await $(
+      'android=new UiSelector().resourceId("io.appium.android.apis:id/edit")'
+    );
+    await countryInputById.waitForDisplayed({ timeout: 10000 });
+    await countryInputByUiSelector.waitForDisplayed({ timeout: 10000 });
+
+    assert.equal(
+      await countryInputByUiSelector.getAttribute('resource-id'),
+      await countryInputById.getAttribute('resource-id'),
+      'The ID and UiSelector strategies should identify the same text field'
+    );
+
+    const countryInput = countryInputById;
     await countryInput.clearValue();
     await countryInput.setValue('Ukraine');
 
     const enteredText = await countryInput.getText();
-    assert.match(enteredText, /Ukraine/i, `Expected input to contain 'Ukraine', got '${enteredText}'`);
+    assert.equal(enteredText, 'Ukraine', `Expected input to contain 'Ukraine', got '${enteredText}'`);
   });
 
-  it('should open two additional main menu sections', async () => {
-    const additionalMenus = ['App', 'Media'];
+  it('should open the App and Media main menu sections', async () => {
+    await driver.terminateApp('io.appium.android.apis');
+    await driver.activateApp('io.appium.android.apis');
 
-    for (const menuName of additionalMenus) {
-      const menuItem = await $(`~${menuName}`);
-      await menuItem.waitForDisplayed({ timeout: 10000 });
-      await menuItem.click();
-      await browser.pause(800);
-      await driver.back();
-      await browser.pause(500);
-    }
+    const appMenu = await $('android=new UiSelector().text("App")');
+    await appMenu.waitForDisplayed({ timeout: 10000 });
+    await appMenu.click();
+    const actionBarItem = await $('android=new UiSelector().text("Action Bar")');
+    await actionBarItem.waitForDisplayed({ timeout: 10000 });
+    assert.equal(await actionBarItem.isDisplayed(), true);
 
-    const homeScreenVisible = await $('~Views').isDisplayed();
-    assert.equal(homeScreenVisible, true);
+    await driver.back();
+    const mediaMenu = await $('~Media');
+    await mediaMenu.waitForDisplayed({ timeout: 10000 });
+    await mediaMenu.click();
+    const audioFxItem = await $('android=new UiSelector().text("AudioFx")');
+    await audioFxItem.waitForDisplayed({ timeout: 10000 });
+    assert.equal(await audioFxItem.isDisplayed(), true);
   });
 });

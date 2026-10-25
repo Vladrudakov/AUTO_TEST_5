@@ -10,12 +10,17 @@ const androidSdkPath = (
   path.join(process.env.LOCALAPPDATA || '', 'Android', 'Sdk')
 ).trim();
 const adbPath = path.join(androidSdkPath, 'platform-tools', 'adb.exe');
+const apiDemosApkPath = path.join(__dirname, 'ApiDemos-debug.apk');
 
 if (!androidSdkPath || !fs.existsSync(adbPath)) {
   throw new Error(
     'Android SDK was not found. Install Android SDK (Android Studio), then set ' +
     'ANDROID_HOME in .env to its path, for example: C:\\Users\\<user>\\AppData\\Local\\Android\\Sdk'
   );
+}
+
+if (!fs.existsSync(apiDemosApkPath)) {
+  throw new Error(`API Demos APK was not found: ${apiDemosApkPath}`);
 }
 
 process.env.ANDROID_HOME = androidSdkPath;
@@ -50,13 +55,12 @@ exports.config = {
   path: '/',
   capabilities: [{
     platformName: 'Android',
-    'appium:deviceName': 'Pixel_5_API_34',
-    'appium:platformVersion': '14',
+    'appium:deviceName': 'Android Emulator',
     'appium:automationName': 'UiAutomator2',
+    'appium:app': apiDemosApkPath,
     'appium:appPackage': 'io.appium.android.apis',
     'appium:appActivity': 'io.appium.android.apis.ApiDemos',
-    'appium:noReset': true,
+    'appium:noReset': false,
     'appium:newCommandTimeout': 600,
-    'appium:ensureWebviewsHavePages': true,
   }],
 };
